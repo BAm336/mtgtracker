@@ -1,0 +1,2 @@
+export SUPABASE_ACCESS_TOKEN=sbp_6d723550e99fc112aeb44811f180a525940969c8
+supabase link --project-ref wtkmjzmatvjjfrrqvcce
