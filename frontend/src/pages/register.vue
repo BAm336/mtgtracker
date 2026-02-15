@@ -56,7 +56,7 @@ async function handleRegister() {
 </script>
 
 <template>
-  <div>
+  <div class="max-w-md mx-auto">
     <h1 class="text-2xl font-bold mb-6">Créer un compte</h1>
 
     <form @submit.prevent="handleRegister" class="space-y-4">

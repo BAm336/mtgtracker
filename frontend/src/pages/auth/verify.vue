@@ -24,7 +24,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
+  <div class="max-w-md mx-auto">
     <h1 class="text-2xl font-bold mb-6">Vérification...</h1>
     <p class="text-gray-500">Vérification de votre lien de connexion</p>
   </div>
