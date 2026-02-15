@@ -25,17 +25,24 @@ export const useAuthStore = defineStore('auth', () => {
     return { error }
   }
 
+  function getRedirectUrl() {
+    return `${window.location.origin}${import.meta.env.BASE_URL}auth/verify`
+  }
+
   async function signUp(email: string, password: string, username: string) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { username } },
+      options: { data: { username }, emailRedirectTo: getRedirectUrl() },
     })
     return { error }
   }
 
   async function signInWithMagicLink(email: string) {
-    const { error } = await supabase.auth.signInWithOtp({ email })
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: getRedirectUrl() },
+    })
     return { error }
   }
 
