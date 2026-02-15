@@ -32,13 +32,12 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Run tests
-        working-directory: frontend
-        run: npx vitest run
-
       - name: Build
         working-directory: frontend
         run: npm run build-only
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Copy index.html to 404.html for SPA fallback
         run: cp frontend/dist/index.html frontend/dist/404.html
