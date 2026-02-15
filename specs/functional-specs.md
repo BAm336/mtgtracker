@@ -250,7 +250,7 @@ Le tableau de bord affiche :
 
 ### 6.3 Navigation
 
-- **Header** : logo/nom de l'app, navigation principale, menu utilisateur (profil, deconnexion)
+- **Header** : logo/nom de l'app (cliquable, redirige vers la page d'accueil), navigation principale, menu utilisateur (profil, deconnexion)
 - **Page de groupe** : onglets ou sous-navigation (Parties, Statistiques, Membres)
 - **Mobile** : navigation responsive, menu hamburger sur petits ecrans
 
@@ -262,6 +262,7 @@ Le tableau de bord affiche :
 | ---------------------------------- | ------------------------------------- |
 | Inscription reussie                | Message de succes + redirection       |
 | Connexion reussie                  | Redirection vers tableau de bord      |
+| Deconnexion                        | Redirection vers la page d'accueil    |
 | Erreur de connexion                | Message d'erreur en rouge             |
 | Magic link envoye                  | Message de confirmation               |
 | Groupe cree                        | Message de succes + redirection       |

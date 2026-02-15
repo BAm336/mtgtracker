@@ -104,7 +104,7 @@ Le plugin `unplugin-vue-router` génère les routes automatiquement depuis l'arb
 
 Deux layouts principaux :
 
-- **`default`** : header avec navigation, menu utilisateur (pages authentifiées)
+- **`default`** : header avec navigation (logo cliquable vers `/`), menu utilisateur (pages authentifiées)
 - **`auth`** : layout minimal centré, sans navigation (login, register, reset password)
 
 ### 3.4 Guards de navigation
@@ -117,7 +117,7 @@ Deux layouts principaux :
 
 | Store    | Responsabilité                                          |
 | -------- | ------------------------------------------------------- |
-| `auth`   | Session utilisateur, profil, login/logout               |
+| `auth`   | Session utilisateur, profil, login/logout (logout redirige vers `/`) |
 | `groups` | Liste des groupes de l'utilisateur, groupe courant      |
 | `games`  | Parties du groupe courant, CRUD                         |
 
