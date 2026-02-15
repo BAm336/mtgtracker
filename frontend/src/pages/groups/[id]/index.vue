@@ -1,13 +1,18 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useGroupsStore } from '@/stores/groups'
+import { useGamesStore } from '@/stores/games'
 
 defineOptions({ meta: { requiresAuth: true } })
 
 const route = useRoute('/groups/[id]/')
 const groupId = route.params.id
 const groupsStore = useGroupsStore()
+const gamesStore = useGamesStore()
+
+const filterFormat = ref('')
+const filterPlayer = ref('')
 
 const tabs = [
   { label: 'Parties', to: `/groups/${groupId}` },
@@ -16,9 +21,30 @@ const tabs = [
 ]
 
 const groupName = computed(() => groupsStore.currentGroup?.name ?? 'Groupe')
+const members = computed(() => groupsStore.currentGroup?.group_members ?? [])
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+function winnerName(game: typeof gamesStore.games[0]) {
+  const winner = game.game_players.find(p => p.is_winner)
+  return winner?.profiles.username ?? null
+}
+
+function loadGames() {
+  gamesStore.fetchGames(groupId, {
+    formatId: filterFormat.value || undefined,
+    userId: filterPlayer.value || undefined,
+  })
+}
+
+watch([filterFormat, filterPlayer], () => loadGames())
 
 onMounted(() => {
   groupsStore.fetchGroup(groupId)
+  gamesStore.fetchFormats()
+  loadGames()
 })
 </script>
 
@@ -48,8 +74,73 @@ onMounted(() => {
         </router-link>
       </nav>
 
-      <!-- Content: placeholder for games -->
-      <p class="text-gray-500">Historique des parties à venir</p>
+      <!-- Toolbar -->
+      <div class="flex flex-wrap items-center gap-3 mb-6">
+        <router-link
+          :to="`/groups/${groupId}/games/new`"
+          class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+        >
+          Nouvelle partie
+        </router-link>
+
+        <select
+          v-model="filterFormat"
+          class="rounded-md border border-gray-300 px-3 py-2 text-sm"
+        >
+          <option value="">Tous les formats</option>
+          <option v-for="fmt in gamesStore.formats" :key="fmt.id" :value="fmt.id">
+            {{ fmt.name }}
+          </option>
+        </select>
+
+        <select
+          v-model="filterPlayer"
+          class="rounded-md border border-gray-300 px-3 py-2 text-sm"
+        >
+          <option value="">Tous les joueurs</option>
+          <option v-for="member in members" :key="member.user_id" :value="member.user_id">
+            {{ member.profiles.username }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Games list -->
+      <div v-if="gamesStore.loading" class="text-gray-400 text-sm">Chargement des parties...</div>
+      <div v-else-if="gamesStore.games.length === 0" class="text-gray-500 text-sm">
+        Aucune partie enregistrée pour le moment.
+      </div>
+      <div v-else class="space-y-3">
+        <router-link
+          v-for="game in gamesStore.games"
+          :key="game.id"
+          :to="`/groups/${groupId}/games/${game.id}`"
+          class="block rounded-lg border border-gray-200 bg-white p-4 hover:border-indigo-300 transition-colors"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm text-gray-500">{{ formatDate(game.played_at) }}</span>
+            <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+              {{ game.game_formats.name }}
+            </span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <span
+              v-for="player in game.game_players"
+              :key="player.user_id"
+              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+              :class="player.is_winner
+                ? 'bg-green-100 text-green-800'
+                : 'bg-gray-100 text-gray-700'"
+            >
+              {{ player.profiles.username }}
+              <template v-if="player.deck_name"> — {{ player.deck_name }}</template>
+              <template v-if="player.is_winner"> ★</template>
+            </span>
+          </div>
+          <div v-if="winnerName(game)" class="mt-2 text-sm text-green-700 font-medium">
+            Gagnant : {{ winnerName(game) }}
+          </div>
+        </router-link>
+      </div>
     </template>
   </div>
 </template>
