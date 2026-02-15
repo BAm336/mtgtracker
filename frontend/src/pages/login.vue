@@ -48,7 +48,7 @@ async function handleMagicLink() {
 </script>
 
 <template>
-  <div>
+  <div class="max-w-md mx-auto">
     <h1 class="text-2xl font-bold mb-6">Se connecter</h1>
 
     <div v-if="magicLinkSent" class="p-4 bg-green-100 text-green-800 rounded mb-4">
