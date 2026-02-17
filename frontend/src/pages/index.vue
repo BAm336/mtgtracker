@@ -6,6 +6,11 @@ defineOptions({ meta: { layout: 'auth' } })
   <div class="space-y-16">
     <!-- Hero Section -->
     <div class="text-center space-y-6">
+      <!-- Logo -->
+      <div class="flex justify-center">
+        <img src="/logo.svg" alt="MTG Tracker" class="w-20 h-20 rounded-2xl shadow-lg shadow-indigo-200" />
+      </div>
+
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-sm font-medium">
         <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
         Gratuit et open source

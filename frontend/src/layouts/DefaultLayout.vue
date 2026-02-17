@@ -16,8 +16,11 @@ async function handleLogout() {
     <header class="bg-white shadow-sm border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-          <router-link to="/" class="text-xl font-bold text-indigo-600">
-            MTG Tracker
+          <router-link to="/" class="flex items-center gap-2.5 group">
+            <img src="/logo.svg" alt="" class="w-8 h-8 rounded-lg" aria-hidden="true" />
+            <span class="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+              MTG <span class="text-indigo-600">Tracker</span>
+            </span>
           </router-link>
           <nav class="flex items-center gap-4">
             <router-link to="/dashboard" class="text-gray-600 hover:text-gray-900">Dashboard</router-link>
