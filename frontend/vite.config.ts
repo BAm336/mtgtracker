@@ -20,14 +20,25 @@ export default defineConfig({
     UnoCSS(),
     VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'logo.svg'],
       manifest: {
         name: 'MTG Tracker',
         short_name: 'MTG Tracker',
-        description: 'Track your Magic: The Gathering games',
+        description: 'Suivez vos parties de Magic: The Gathering entre amis. Statistiques, classements et historique.',
         theme_color: '#1a1a2e',
         background_color: '#1a1a2e',
         display: 'standalone',
+        orientation: 'portrait-primary',
+        start_url: '/',
+        scope: '/',
+        lang: 'fr',
+        categories: ['games', 'utilities'],
         icons: [
+          {
+            src: 'pwa-64x64.png',
+            sizes: '64x64',
+            type: 'image/png',
+          },
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
@@ -37,6 +48,32 @@ export default defineConfig({
             src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
+          },
+          {
+            src: 'maskable-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'supabase-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24, // 24h
+              },
+              networkTimeoutSeconds: 10,
+            },
           },
         ],
       },
