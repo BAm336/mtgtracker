@@ -88,7 +88,7 @@ onMounted(async () => {
             to="/dashboard"
             class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Retour au dashboard
+            Tableau de bord
           </router-link>
         </div>
       </div>

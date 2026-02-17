@@ -51,7 +51,7 @@ onMounted(() => {
 <template>
   <div>
     <div class="mb-6">
-      <router-link to="/dashboard" class="text-sm text-indigo-600 hover:text-indigo-800">&larr; Dashboard</router-link>
+      <router-link to="/dashboard" class="text-sm text-indigo-600 hover:text-indigo-800">&larr; Tableau de bord</router-link>
     </div>
 
     <h1 v-if="groupsStore.loading" class="text-2xl font-bold mb-6 text-gray-400">Chargement...</h1>
