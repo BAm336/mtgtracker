@@ -9,7 +9,7 @@ const groupId = route.params.id
 
 <template>
   <div>
-    <h1 class="text-2xl font-bold mb-6">Statistics</h1>
-    <p class="text-gray-500">Stats for group {{ groupId }}</p>
+    <h1 class="text-2xl font-bold mb-6">Statistiques</h1>
+    <p class="text-gray-500">Les statistiques du groupe seront bientôt disponibles.</p>
   </div>
 </template>

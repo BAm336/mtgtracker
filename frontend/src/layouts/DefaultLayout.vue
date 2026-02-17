@@ -23,8 +23,8 @@ async function handleLogout() {
             </span>
           </router-link>
           <nav class="flex items-center gap-4">
-            <router-link to="/dashboard" class="text-gray-600 hover:text-gray-900">Dashboard</router-link>
-            <router-link to="/profile" class="text-gray-600 hover:text-gray-900">Profile</router-link>
+            <router-link to="/dashboard" class="text-gray-600 hover:text-gray-900">Tableau de bord</router-link>
+            <router-link to="/profile" class="text-gray-600 hover:text-gray-900">Profil</router-link>
             <button
               class="text-gray-600 hover:text-gray-900"
               @click="handleLogout"

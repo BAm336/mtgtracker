@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 defineOptions({ meta: { layout: 'auth' } })
 
-const router = useRouter()
 const authStore = useAuthStore()
 
 const username = ref('')
@@ -14,6 +12,7 @@ const password = ref('')
 const passwordConfirm = ref('')
 const error = ref('')
 const submitting = ref(false)
+const registered = ref(false)
 
 const usernameRegex = /^[a-zA-Z0-9_-]+$/
 
@@ -51,7 +50,7 @@ async function handleRegister() {
     return
   }
 
-  router.push('/dashboard')
+  registered.value = true
 }
 </script>
 
@@ -59,7 +58,11 @@ async function handleRegister() {
   <div class="max-w-md mx-auto">
     <h1 class="text-2xl font-bold mb-6">Créer un compte</h1>
 
-    <form @submit.prevent="handleRegister" class="space-y-4">
+    <div v-if="registered" class="p-4 bg-green-100 text-green-800 rounded mb-4">
+      Un email de confirmation a été envoyé à <strong>{{ email }}</strong>. Vérifiez votre boîte mail pour activer votre compte.
+    </div>
+
+    <form v-else @submit.prevent="handleRegister" class="space-y-4">
       <div>
         <label for="username" class="block text-sm font-medium mb-1">Pseudo</label>
         <input

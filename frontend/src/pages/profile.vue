@@ -4,7 +4,7 @@ defineOptions({ meta: { requiresAuth: true } })
 
 <template>
   <div>
-    <h1 class="text-2xl font-bold mb-6">Profile</h1>
-    <p class="text-gray-500">Profile settings coming soon</p>
+    <h1 class="text-2xl font-bold mb-6">Profil</h1>
+    <p class="text-gray-500">Les paramètres du profil seront bientôt disponibles.</p>
   </div>
 </template>
