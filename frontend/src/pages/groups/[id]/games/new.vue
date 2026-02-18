@@ -96,16 +96,21 @@ onMounted(async () => {
     <form class="space-y-6 max-w-lg" @submit.prevent="handleSubmit">
       <!-- Format -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Format</label>
-        <select
-          v-model="formatId"
-          class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        >
-          <option value="" disabled>Choisir un format</option>
-          <option v-for="fmt in gamesStore.formats" :key="fmt.id" :value="fmt.id">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Format</label>
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="fmt in gamesStore.formats"
+            :key="fmt.id"
+            type="button"
+            class="px-4 py-2 rounded-full text-sm font-medium border transition-colors"
+            :class="formatId === fmt.id
+              ? 'bg-indigo-600 text-white border-indigo-600'
+              : 'bg-white text-gray-700 border-gray-300 hover:border-indigo-300 hover:bg-indigo-50'"
+            @click="formatId = fmt.id"
+          >
             {{ fmt.name }}
-          </option>
-        </select>
+          </button>
+        </div>
       </div>
 
       <!-- Date -->
