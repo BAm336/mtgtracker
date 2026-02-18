@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { useAuthStore } from '@/stores/auth'
+
 defineOptions({ meta: { layout: 'auth' } })
+
+const authStore = useAuthStore()
 </script>
 
 <template>
@@ -27,18 +31,28 @@ defineOptions({ meta: { layout: 'auth' } })
 
       <!-- CTA Buttons -->
       <div class="flex gap-4 justify-center pt-2">
-        <router-link
-          to="/register"
-          class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
-        >
-          Commencer gratuitement
-        </router-link>
-        <router-link
-          to="/login"
-          class="px-8 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
-        >
-          Se connecter
-        </router-link>
+        <template v-if="authStore.isAuthenticated()">
+          <router-link
+            to="/dashboard"
+            class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
+          >
+            Accéder au tableau de bord
+          </router-link>
+        </template>
+        <template v-else>
+          <router-link
+            to="/register"
+            class="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
+          >
+            Commencer gratuitement
+          </router-link>
+          <router-link
+            to="/login"
+            class="px-8 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition-colors"
+          >
+            Se connecter
+          </router-link>
+        </template>
       </div>
     </div>
 

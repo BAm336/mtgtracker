@@ -110,8 +110,10 @@ Deux layouts principaux :
 ### 3.4 Guards de navigation
 
 - Les pages authentifiées redirigent vers `/login` si l'utilisateur n'est pas connecté
-- Les pages publiques (login, register) redirigent vers `/dashboard` si l'utilisateur est déjà connecté
+- Les pages publiques (accueil, login, register) redirigent vers `/dashboard` si l'utilisateur est déjà connecté
 - La page `/invite/:code` redirige vers `/login` avec le code en query param si non connecté, puis rejoint le groupe après connexion
+- La page d'accueil (`/`) affiche un bouton "Accéder au tableau de bord" au lieu des boutons connexion/inscription si l'utilisateur est connecté
+- Le dashboard (`/dashboard`) redirige automatiquement vers `/groups/:id` si l'utilisateur n'appartient qu'à un seul groupe
 
 ### 3.5 Stores Pinia
 

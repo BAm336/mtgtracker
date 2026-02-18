@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useGroupsStore } from '@/stores/groups'
 
 defineOptions({ meta: { requiresAuth: true } })
 
+const router = useRouter()
 const authStore = useAuthStore()
 const groupsStore = useGroupsStore()
 
@@ -29,8 +31,11 @@ async function handleCreate() {
   creating.value = false
 }
 
-onMounted(() => {
-  groupsStore.fetchGroups()
+onMounted(async () => {
+  await groupsStore.fetchGroups()
+  if (groupsStore.groups.length === 1) {
+    router.replace(`/groups/${groupsStore.groups[0].id}`)
+  }
 })
 </script>
 

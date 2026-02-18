@@ -229,7 +229,7 @@ Le tableau de bord affiche :
 
 | Page                | URL                  | Description                              |
 | ------------------- | -------------------- | ---------------------------------------- |
-| Accueil             | `/`                  | Presentation, boutons connexion/inscription |
+| Accueil             | `/`                  | Presentation ; si connecte, bouton "Acceder au tableau de bord" ; sinon, boutons connexion/inscription |
 | Inscription         | `/register`          | Formulaire de creation de compte         |
 | Connexion           | `/login`             | Formulaire de connexion                  |
 | Magic link confirm  | `/auth/verify`       | Page de confirmation du magic link       |
@@ -240,7 +240,7 @@ Le tableau de bord affiche :
 
 | Page                    | URL                          | Description                                    |
 | ----------------------- | ---------------------------- | ---------------------------------------------- |
-| Tableau de bord         | `/dashboard`                 | Liste des groupes, acces rapide                |
+| Tableau de bord         | `/dashboard`                 | Liste des groupes, acces rapide. Redirection automatique vers le groupe si l'utilisateur n'appartient qu'a un seul groupe |
 | Profil                  | `/profile`                   | Modification pseudo, mot de passe              |
 | Groupe                  | `/groups/:id`                | Page principale du groupe (stats + historique)  |
 | Membres du groupe       | `/groups/:id/members`        | Liste et gestion des membres                   |

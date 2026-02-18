@@ -13,13 +13,14 @@
 - ✅ Verification magic link (`/auth/verify`)
 - ✅ Reinitialisation mot de passe (page)
 - ✅ Store auth (session, user, guards)
-- ✅ Route guards (redirection login/dashboard)
+- ✅ Route guards (redirection login/dashboard, redirection pages auth vers dashboard si connecte)
+- ✅ Page d'accueil — Bouton "Acceder au tableau de bord" si connecte, sinon boutons connexion/inscription
 
 ## 2. Groupes
 
 - ✅ Store groups — CRUD complet (`src/stores/groups.ts`)
   - fetchGroups, fetchGroup, createGroup, createInvitation, joinGroup, leaveGroup, removeMember
-- ✅ Dashboard — Liste des groupes + creation inline (`src/pages/dashboard.vue`)
+- ✅ Dashboard — Liste des groupes + creation inline, redirection auto si un seul groupe (`src/pages/dashboard.vue`)
 - ✅ Page groupe — Titre, sous-navigation onglets Parties/Stats/Membres (`src/pages/groups/[id]/index.vue`)
 - ✅ Page membres — Liste, badges role, invitation avec copie lien, retirer membre (admin), quitter groupe (`src/pages/groups/[id]/members.vue`)
 - ✅ Page invitation — Gestion connecte/non connecte, join auto, erreurs (`src/pages/invite/[code].vue`)
@@ -35,10 +36,10 @@
 
 ## 4. Parties
 
-- 🔲 Store games (`src/stores/games.ts` — placeholder)
-- 🔲 Formulaire nouvelle partie (`src/pages/groups/[id]/games/new.vue`)
-- 🔲 Detail/modification d'une partie (`src/pages/groups/[id]/games/[gameId].vue`)
-- 🔲 Historique des parties dans la page groupe (onglet Parties)
+- ✅ Store games — CRUD complet (`src/stores/games.ts`)
+- ✅ Formulaire nouvelle partie (`src/pages/groups/[id]/games/new.vue`)
+- ✅ Detail/modification/suppression d'une partie (`src/pages/groups/[id]/games/[gameId].vue`)
+- ✅ Historique des parties avec filtres dans la page groupe (onglet Parties)
 
 ## 5. Statistiques
 
@@ -54,8 +55,9 @@
 
 ## 7. PWA
 
-- 🔲 Manifest
-- 🔲 Service worker minimal (installable)
+- ✅ Manifest (nom, icones, couleur theme, mode standalone)
+- ✅ Service worker minimal (installable, prompt d'installation)
+- ✅ Logo SVG
 
 ## 8. Composants
 
