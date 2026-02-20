@@ -3,6 +3,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGamesStore } from '@/stores/games'
 import { useGroupsStore } from '@/stores/groups'
+import { useDecksStore } from '@/stores/decks'
+import ManaColors from '@/components/ManaColors.vue'
+import DeckSelector, { type DeckInput } from '@/components/DeckSelector.vue'
 
 defineOptions({ meta: { requiresAuth: true } })
 
@@ -12,6 +15,7 @@ const groupId = route.params.id
 const gameId = route.params.gameId
 const gamesStore = useGamesStore()
 const groupsStore = useGroupsStore()
+const decksStore = useDecksStore()
 
 const editing = ref(false)
 const confirmDelete = ref(false)
@@ -22,7 +26,7 @@ const formError = ref<string | null>(null)
 const editFormatId = ref('')
 const editPlayedAt = ref('')
 const editSelectedPlayerIds = ref<string[]>([])
-const editPlayerDecks = ref<Record<string, string>>({})
+const editPlayerDeckInputs = ref<Record<string, DeckInput>>({})
 const editPlayerCommanders = ref<Record<string, string>>({})
 const editWinnerId = ref('')
 
@@ -43,11 +47,16 @@ function startEdit() {
   editFormatId.value = game.value.format_id
   editPlayedAt.value = game.value.played_at.slice(0, 10)
   editSelectedPlayerIds.value = game.value.game_players.map(p => p.user_id)
-  editPlayerDecks.value = {}
+  editPlayerDeckInputs.value = {}
   editPlayerCommanders.value = {}
   editWinnerId.value = ''
   for (const p of game.value.game_players) {
-    if (p.deck_name) editPlayerDecks.value[p.user_id] = p.deck_name
+    editPlayerDeckInputs.value[p.user_id] = {
+      deckId: p.deck_id ?? null,
+      deckName: p.deck_name ?? '',
+      deckColors: p.deck_colors ?? [],
+      saveToLibrary: false,
+    }
     if (p.commander) editPlayerCommanders.value[p.user_id] = p.commander
     if (p.is_winner) editWinnerId.value = p.user_id
   }
@@ -67,6 +76,9 @@ function togglePlayer(userId: string) {
     if (editWinnerId.value === userId) editWinnerId.value = ''
   } else if (editSelectedPlayerIds.value.length < 8) {
     editSelectedPlayerIds.value.push(userId)
+    if (!editPlayerDeckInputs.value[userId]) {
+      editPlayerDeckInputs.value[userId] = { deckId: null, deckName: '', deckColors: [], saveToLibrary: false }
+    }
   }
 }
 
@@ -76,6 +88,9 @@ const validationError = computed(() => {
   if (!editWinnerId.value) return 'Sélectionnez un gagnant'
   if (isCommander.value && editSelectedPlayerIds.value.some(id => !editPlayerCommanders.value[id]?.trim())) {
     return 'Le champ commander est requis pour ce format'
+  }
+  if (editSelectedPlayerIds.value.some(id => (editPlayerDeckInputs.value[id]?.deckColors ?? []).length === 0)) {
+    return 'Sélectionnez les couleurs du deck pour chaque joueur'
   }
   return null
 })
@@ -89,15 +104,39 @@ async function handleUpdate() {
   submitting.value = true
   formError.value = null
 
+  const players = []
+  for (const userId of editSelectedPlayerIds.value) {
+    const input = editPlayerDeckInputs.value[userId] ?? { deckId: null, deckName: '', deckColors: [], saveToLibrary: false }
+    let deckId = input.deckId
+
+    if (!deckId && input.saveToLibrary && input.deckColors.length > 0) {
+      const result = await decksStore.createDeck({
+        groupId,
+        name: input.deckName || 'Sans nom',
+        colors: input.deckColors,
+      })
+      if (result.data) deckId = result.data.id
+      if (result.error) {
+        formError.value = result.error
+        submitting.value = false
+        return
+      }
+    }
+
+    players.push({
+      userId,
+      deckId,
+      deckName: deckId ? undefined : (input.deckName || undefined),
+      deckColors: input.deckColors,
+      commander: editPlayerCommanders.value[userId]?.trim() || undefined,
+      isWinner: userId === editWinnerId.value,
+    })
+  }
+
   const result = await gamesStore.updateGame(gameId, {
     formatId: editFormatId.value,
     playedAt: editPlayedAt.value,
-    players: editSelectedPlayerIds.value.map(userId => ({
-      userId,
-      deckName: editPlayerDecks.value[userId]?.trim() || undefined,
-      commander: editPlayerCommanders.value[userId]?.trim() || undefined,
-      isWinner: userId === editWinnerId.value,
-    })),
+    players,
   })
 
   if (result.error) {
@@ -125,7 +164,10 @@ onMounted(async () => {
   if (!groupsStore.currentGroup || groupsStore.currentGroup.id !== groupId) {
     await groupsStore.fetchGroup(groupId)
   }
-  await gamesStore.fetchGame(gameId)
+  await Promise.all([
+    gamesStore.fetchGame(gameId),
+    decksStore.fetchDecks(groupId),
+  ])
 })
 </script>
 
@@ -200,10 +242,11 @@ onMounted(async () => {
                 Gagnant
               </span>
             </div>
-            <div v-if="player.deck_name" class="text-sm text-gray-600 mt-1">
-              Deck : {{ player.deck_name }}
+            <div class="flex items-center gap-2 mt-2">
+              <ManaColors :model-value="player.deck_colors ?? []" readonly size="sm" />
+              <span v-if="player.deck_name" class="text-sm text-gray-600">{{ player.deck_name }}</span>
             </div>
-            <div v-if="player.commander" class="text-sm text-gray-600">
+            <div v-if="player.commander" class="text-sm text-gray-600 mt-1">
               Commander : {{ player.commander }}
             </div>
           </div>
@@ -284,14 +327,10 @@ onMounted(async () => {
                 <span>Gagnant</span>
               </label>
             </div>
-            <div>
-              <input
-                v-model="editPlayerDecks[playerId]"
-                type="text"
-                placeholder="Nom du deck"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-              />
-            </div>
+            <DeckSelector
+              v-model="editPlayerDeckInputs[playerId]"
+              :decks="decksStore.decks"
+            />
             <div v-if="isCommander">
               <input
                 v-model="editPlayerCommanders[playerId]"

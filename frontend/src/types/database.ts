@@ -141,25 +141,57 @@ export interface Database {
           updated_at?: string
         }
       }
+      decks: {
+        Row: {
+          id: string
+          group_id: string
+          owner_user_id: string | null
+          name: string
+          colors: string[]
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          group_id: string
+          owner_user_id?: string | null
+          name: string
+          colors: string[]
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          group_id?: string
+          owner_user_id?: string | null
+          name?: string
+          colors?: string[]
+          created_at?: string
+        }
+      }
       game_players: {
         Row: {
           game_id: string
           user_id: string
+          deck_id: string | null
           deck_name: string | null
+          deck_colors: string[]
           commander: string | null
           is_winner: boolean
         }
         Insert: {
           game_id: string
           user_id: string
+          deck_id?: string | null
           deck_name?: string | null
+          deck_colors?: string[]
           commander?: string | null
           is_winner?: boolean
         }
         Update: {
           game_id?: string
           user_id?: string
+          deck_id?: string | null
           deck_name?: string | null
+          deck_colors?: string[]
           commander?: string | null
           is_winner?: boolean
         }

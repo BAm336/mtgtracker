@@ -19,7 +19,9 @@ export interface GameWithDetails extends Game {
 
 export interface PlayerInput {
   userId: string
+  deckId?: string | null
   deckName?: string
+  deckColors?: string[]
   commander?: string
   isWinner: boolean
 }
@@ -116,7 +118,9 @@ export const useGamesStore = defineStore('games', () => {
     const playersInsert = params.players.map(p => ({
       game_id: data.id,
       user_id: p.userId,
+      deck_id: p.deckId || null,
       deck_name: p.deckName || null,
+      deck_colors: p.deckColors ?? [],
       commander: p.commander || null,
       is_winner: p.isWinner,
     }))
@@ -156,7 +160,9 @@ export const useGamesStore = defineStore('games', () => {
     const playersInsert = params.players.map(p => ({
       game_id: gameId,
       user_id: p.userId,
+      deck_id: p.deckId || null,
       deck_name: p.deckName || null,
+      deck_colors: p.deckColors ?? [],
       commander: p.commander || null,
       is_winner: p.isWinner,
     }))

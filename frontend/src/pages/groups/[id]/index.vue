@@ -3,6 +3,7 @@ import { onMounted, computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useGroupsStore } from '@/stores/groups'
 import { useGamesStore } from '@/stores/games'
+import ManaColors from '@/components/ManaColors.vue'
 
 defineOptions({ meta: { requiresAuth: true } })
 
@@ -126,13 +127,14 @@ onMounted(() => {
             <span
               v-for="player in game.game_players"
               :key="player.user_id"
-              class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+              class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
               :class="player.is_winner
                 ? 'bg-green-100 text-green-800'
                 : 'bg-gray-100 text-gray-700'"
             >
               {{ player.profiles.username }}
               <template v-if="player.deck_name"> — {{ player.deck_name }}</template>
+              <ManaColors v-if="player.deck_colors?.length" :model-value="player.deck_colors" readonly size="sm" />
               <template v-if="player.is_winner"> ★</template>
             </span>
           </div>
