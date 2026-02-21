@@ -15,11 +15,12 @@ auth.users (Supabase Auth)
                         │           │     │
                   groups ┘          │     │
                     │               │     │
-                    └──< group_invitations    │
-                    │                         │
-                    └──< games                │
-                           │                  │
-                           └──< game_players ─┘
+                    ├──< group_invitations    │
+                    ├──< games                │
+                    │      │                  │
+                    │      └──< game_players ─┘
+                    │                   │
+                    └──< decks ─────────┘
 ```
 
 ## 2. Tables
@@ -121,23 +122,47 @@ Formats de jeu disponibles. Table de référence extensible.
 
 ---
 
-### 2.7 game_players
+### 2.7 decks
+
+Bibliothèque de decks partagée au sein d'un groupe. Permet de réutiliser un deck d'une partie à l'autre sans ressaisir ses informations.
+
+| Colonne        | Type          | Contraintes                          | Description                              |
+| -------------- | ------------- | ------------------------------------ | ---------------------------------------- |
+| id             | uuid          | PK, DEFAULT gen_random_uuid()        | Identifiant                              |
+| group_id       | uuid          | FK → groups.id, NOT NULL, ON DELETE CASCADE | Groupe auquel appartient le deck  |
+| owner_user_id  | uuid          | FK → profiles.id, NULL, ON DELETE SET NULL  | Joueur "propriétaire" du deck (optionnel) |
+| name           | varchar(100)  | NOT NULL                             | Nom du deck                              |
+| colors         | text[]        | NOT NULL                             | Couleurs MTG : sous-ensemble de {W,U,B,R,G,C} |
+| created_at     | timestamptz   | NOT NULL, DEFAULT now()              | Date de création                         |
+
+**Contraintes :**
+- `colors` contient au moins un élément
+- `C` (incolore) est mutuellement exclusif avec les autres couleurs W/U/B/R/G
+- Les decks d'un groupe sont visibles par tous ses membres (RLS)
+- Tout membre peut créer, modifier et supprimer un deck du groupe
+
+---
+
+### 2.8 game_players
 
 Joueurs participants à une partie.
 
-| Colonne      | Type          | Contraintes                | Description                  |
-| ------------ | ------------- | -------------------------- | ---------------------------- |
-| game_id      | uuid          | PK, FK → games.id          | Partie                       |
-| user_id      | uuid          | PK, FK → profiles.id       | Joueur                       |
-| deck_name    | varchar(100)  | NULL                       | Nom du deck                  |
-| commander    | varchar(100)  | NULL                       | Nom du commandant            |
-| is_winner    | boolean       | NOT NULL, DEFAULT false     | Ce joueur a-t-il gagné ?     |
+| Colonne      | Type          | Contraintes                        | Description                                    |
+| ------------ | ------------- | ---------------------------------- | ---------------------------------------------- |
+| game_id      | uuid          | PK, FK → games.id                  | Partie                                         |
+| user_id      | uuid          | PK, FK → profiles.id               | Joueur                                         |
+| deck_id      | uuid          | FK → decks.id, NULL, ON DELETE SET NULL | Référence au deck de la bibliothèque (optionnel) |
+| deck_name    | varchar(100)  | NULL                               | Nom du deck (saisie libre si pas de deck_id)   |
+| deck_colors  | text[]        | NOT NULL, DEFAULT '{}'             | Snapshot des couleurs au moment de la partie   |
+| commander    | varchar(100)  | NULL                               | Nom du commandant                              |
+| is_winner    | boolean       | NOT NULL, DEFAULT false            | Ce joueur a-t-il gagné ?                       |
 
 **Contraintes :**
 - Clé primaire composite : `(game_id, user_id)`
 - Exactement un `is_winner = true` par partie (vérifié par trigger ou contrainte applicative)
-- 2 à 4 `game_players` par partie (vérifié par trigger ou contrainte applicative)
+- 2 à 8 `game_players` par partie (vérifié côté applicatif)
 - `commander` obligatoire si le format de la partie est "Commander" (vérifié côté applicatif)
+- `deck_colors` est toujours renseigné (snapshot) : soit copié depuis le deck de la bibliothèque, soit saisi librement. Cela permet d'afficher les couleurs même si le deck est supprimé de la bibliothèque ultérieurement.
 
 ## 3. Triggers
 
@@ -217,6 +242,15 @@ Toutes les tables ont RLS activé. Voici les policies principales.
 | UPDATE    | Tout membre du groupe peut modifier une partie du groupe       |
 | DELETE    | Tout membre du groupe peut supprimer une partie du groupe      |
 
+### 4.6 decks
+
+| Opération | Policy                                                          |
+| --------- | --------------------------------------------------------------- |
+| SELECT    | Un utilisateur voit les decks des groupes dont il est membre    |
+| INSERT    | Tout membre du groupe peut créer un deck dans le groupe         |
+| UPDATE    | Tout membre du groupe peut modifier un deck du groupe           |
+| DELETE    | Tout membre du groupe peut supprimer un deck du groupe          |
+
 ## 5. Index
 
 | Table             | Colonnes                | Justification                          |
@@ -225,3 +259,4 @@ Toutes les tables ont RLS activé. Voici les policies principales.
 | games             | (group_id, played_at)   | Historique chronologique par groupe    |
 | game_players      | (user_id)               | Statistiques par joueur                |
 | group_invitations | (code)                  | Recherche par code d'invitation        |
+| decks             | (group_id)              | Charger la bibliothèque de decks d'un groupe |
