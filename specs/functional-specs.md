@@ -117,7 +117,9 @@
 | GA-01 | Membre du groupe | Enregistrer une nouvelle partie                     | Garder une trace du resultat                       |
 | GA-02 | Membre du groupe | Choisir les joueurs participants (2 a 4)            | Definir qui a joue                                 |
 | GA-03 | Membre du groupe | Indiquer le gagnant                                 | Comptabiliser les victoires                        |
-| GA-04 | Membre du groupe | Indiquer le deck utilise par chaque joueur          | Suivre les performances par deck                   |
+| GA-04 | Membre du groupe | Indiquer le deck utilise par chaque joueur (avec ses couleurs MTG) | Suivre les performances par deck et par couleur |
+| GA-04b | Membre du groupe | Choisir un deck dans la bibliotheque partagee du groupe | Reutiliser un deck sans ressaisir ses informations |
+| GA-04c | Membre du groupe | Enregistrer un nouveau deck dans la bibliotheque lors de la saisie | Enrichir la bibliotheque du groupe au fil des parties |
 | GA-05 | Membre du groupe | Indiquer le commandant pour le format Commander     | Suivre les performances par commandant             |
 | GA-06 | Membre du groupe | Choisir le format de jeu                            | Categoriser les parties                            |
 | GA-07 | Membre du groupe | Indiquer la date de la partie                       | Avoir un historique chronologique                  |
@@ -134,7 +136,12 @@
 - Les joueurs participants doivent etre membres du groupe
 - Les formats de jeu par defaut sont : Pioneer, Limite, Commander, Autre
 - De nouveaux formats peuvent etre ajoutes (la liste est extensible)
-- Le nom du deck est un texte libre (max 100 caracteres)
+- Le deck peut etre selectionne depuis la bibliotheque partagee du groupe, ou saisi librement
+- Les couleurs du deck sont obligatoires pour chaque joueur (W=Blanc, U=Bleu, B=Noir, R=Rouge, G=Vert, C=Incolore)
+- La couleur Incolore (C) est mutuellement exclusive avec les autres couleurs
+- Lors d'une saisie libre, le membre peut choisir d'enregistrer le deck dans la bibliotheque du groupe
+- Les couleurs sont toujours stockees en snapshot sur la partie (pour historique stable)
+- Le nom du deck est un texte libre (max 100 caracteres), facultatif si un deck de la bibliotheque est selectionne
 - Le nom du commandant est un texte libre (max 100 caracteres), facultatif sauf pour le format Commander
 - Pour le format Commander, le champ commandant est obligatoire pour chaque joueur
 - La date de la partie est par defaut la date du jour, mais peut etre modifiee
@@ -145,9 +152,10 @@
 
 1. Le membre ouvre la page du groupe et clique sur "Nouvelle partie"
 2. Il selectionne le format de jeu (liste deroulante)
-3. Il selectionne les joueurs participants (2 a 4) parmi les membres du groupe
-4. Pour chaque joueur, il saisit :
-   - Le nom du deck (texte libre, avec autocompletion basee sur les decks deja utilises par ce joueur)
+3. Il selectionne les joueurs participants (2 a 8) parmi les membres du groupe
+4. Pour chaque joueur, il renseigne son deck :
+   - Soit il choisit un deck existant dans la bibliotheque partagee du groupe (nom + couleurs pre-remplis)
+   - Soit il saisit librement le nom (optionnel) et les couleurs (obligatoire), avec option pour sauvegarder dans la bibliotheque
    - Le nom du commandant (texte libre, affiche uniquement si format = Commander)
 5. Il selectionne le gagnant parmi les joueurs participants
 6. Il confirme ou modifie la date (pre-remplie avec la date du jour)

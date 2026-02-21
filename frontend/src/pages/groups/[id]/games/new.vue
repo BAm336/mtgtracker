@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useGamesStore } from '@/stores/games'
 import { useGroupsStore } from '@/stores/groups'
+import { useDecksStore } from '@/stores/decks'
+import DeckSelector, { type DeckInput } from '@/components/DeckSelector.vue'
 
 defineOptions({ meta: { requiresAuth: true } })
 
@@ -11,11 +13,12 @@ const router = useRouter()
 const groupId = route.params.id
 const gamesStore = useGamesStore()
 const groupsStore = useGroupsStore()
+const decksStore = useDecksStore()
 
 const formatId = ref('')
 const playedAt = ref(new Date().toISOString().slice(0, 10))
 const selectedPlayerIds = ref<string[]>([])
-const playerDecks = ref<Record<string, string>>({})
+const playerDeckInputs = ref<Record<string, DeckInput>>({})
 const playerCommanders = ref<Record<string, string>>({})
 const winnerId = ref('')
 const submitting = ref(false)
@@ -28,6 +31,10 @@ const isCommander = computed(() => {
   return fmt?.name?.toLowerCase().includes('commander') ?? false
 })
 
+function defaultDeckInput(): DeckInput {
+  return { deckId: null, deckName: '', deckColors: [], saveToLibrary: false }
+}
+
 function togglePlayer(userId: string) {
   const idx = selectedPlayerIds.value.indexOf(userId)
   if (idx >= 0) {
@@ -35,6 +42,9 @@ function togglePlayer(userId: string) {
     if (winnerId.value === userId) winnerId.value = ''
   } else if (selectedPlayerIds.value.length < 8) {
     selectedPlayerIds.value.push(userId)
+    if (!playerDeckInputs.value[userId]) {
+      playerDeckInputs.value[userId] = defaultDeckInput()
+    }
   }
 }
 
@@ -44,6 +54,9 @@ const validationError = computed(() => {
   if (!winnerId.value) return 'Sélectionnez un gagnant'
   if (isCommander.value && selectedPlayerIds.value.some(id => !playerCommanders.value[id]?.trim())) {
     return 'Le champ commander est requis pour ce format'
+  }
+  if (selectedPlayerIds.value.some(id => (playerDeckInputs.value[id]?.deckColors ?? []).length === 0)) {
+    return 'Sélectionnez les couleurs du deck pour chaque joueur'
   }
   return null
 })
@@ -57,16 +70,41 @@ async function handleSubmit() {
   submitting.value = true
   formError.value = null
 
+  // Save decks to library if requested, then build player list
+  const players = []
+  for (const userId of selectedPlayerIds.value) {
+    const input = playerDeckInputs.value[userId] ?? defaultDeckInput()
+    let deckId = input.deckId
+
+    if (!deckId && input.saveToLibrary && input.deckColors.length > 0) {
+      const result = await decksStore.createDeck({
+        groupId,
+        name: input.deckName || 'Sans nom',
+        colors: input.deckColors,
+      })
+      if (result.data) deckId = result.data.id
+      if (result.error) {
+        formError.value = result.error
+        submitting.value = false
+        return
+      }
+    }
+
+    players.push({
+      userId,
+      deckId,
+      deckName: deckId ? undefined : (input.deckName || undefined),
+      deckColors: input.deckColors,
+      commander: playerCommanders.value[userId]?.trim() || undefined,
+      isWinner: userId === winnerId.value,
+    })
+  }
+
   const result = await gamesStore.createGame({
     groupId,
     formatId: formatId.value,
     playedAt: playedAt.value,
-    players: selectedPlayerIds.value.map(userId => ({
-      userId,
-      deckName: playerDecks.value[userId]?.trim() || undefined,
-      commander: playerCommanders.value[userId]?.trim() || undefined,
-      isWinner: userId === winnerId.value,
-    })),
+    players,
   })
 
   if (result.error) {
@@ -82,6 +120,7 @@ onMounted(async () => {
   if (!groupsStore.currentGroup || groupsStore.currentGroup.id !== groupId) {
     await groupsStore.fetchGroup(groupId)
   }
+  await decksStore.fetchDecks(groupId)
 })
 </script>
 
@@ -167,14 +206,10 @@ onMounted(async () => {
               <span>Gagnant</span>
             </label>
           </div>
-          <div>
-            <input
-              v-model="playerDecks[playerId]"
-              type="text"
-              placeholder="Nom du deck"
-              class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-            />
-          </div>
+          <DeckSelector
+            v-model="playerDeckInputs[playerId]"
+            :decks="decksStore.decks"
+          />
           <div v-if="isCommander">
             <input
               v-model="playerCommanders[playerId]"
